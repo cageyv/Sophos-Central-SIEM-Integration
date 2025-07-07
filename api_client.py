@@ -50,9 +50,6 @@ ENDPOINT_MAP = {
     "all": [EVENTS_V1, ALERTS_V1],
 }
 
-# Initialize the SIEM_LOGGER
-SIEM_LOGGER = logging.getLogger("SIEM")
-
 
 class ApiClient:
     def __init__(self, endpoint, options, config, state):
@@ -163,6 +160,10 @@ class ApiClient:
             )
             logging_handler.append_nul = self.config.append_nul == "true"
             
+            # INFO: e.g. Google SecOps SIEM expects one line per event,
+            # so this is a way to add an optional newline after
+            if self.config.append_newline == "true":
+                logging_handler.setFormatter(logging.Formatter("%(message)s\n"))
         elif self.config.filename == "stdout":
             logging_handler = logging.StreamHandler(sys.stdout)
         else:
