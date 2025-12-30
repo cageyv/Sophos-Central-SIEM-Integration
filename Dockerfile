@@ -5,7 +5,6 @@ WORKDIR /app
 
 # Copy application files
 COPY *.py ./
-COPY config.ini.sample ./
 
 # Create necessary directories
 RUN mkdir -p /app/state /app/log
@@ -17,7 +16,6 @@ WORKDIR /app
 
 # Copy all Python files from builder
 COPY --from=builder /app/*.py ./
-COPY --from=builder /app/config.ini.sample ./
 
 # Set environment variables
 ENV SOPHOS_SIEM_HOME=/app

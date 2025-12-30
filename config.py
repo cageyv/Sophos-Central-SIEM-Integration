@@ -13,19 +13,65 @@
 #
 
 import re
-import configparser as ConfigParser
+import os
+import configparser
+
+# Default values for configuration
+DEFAULTS = {
+    'auth_url': 'https://id.sophos.com/api/v2/oauth2/token',
+    'api_host': 'api.central.sophos.com',
+    'format': 'json',
+    'filename': 'result.txt',
+    'endpoint': 'event',
+    'address': '/var/run/syslog',
+    'facility': 'daemon',
+    'socktype': 'udp',
+    'append_nul': 'false',
+    'append_newline': 'false',
+    'state_file_path': 'state/siem_sophos.json',
+    'events_from_date_offset_minutes': '0',
+    'alerts_from_date_offset_minutes': '0',
+    'convert_dhost_field_to_valid_fqdn': 'true',
+    'logging_level': 'INFO',
+    'token_info': '',
+    'client_id': '',
+    'client_secret': '',
+    'tenant_id': '',
+}
 
 
 class Config:
-    """Class providing config values"""
+    """Class providing config values from config.ini or environment variables"""
 
     def __init__(self, path):
-        """Open the config file"""
-        self.config = ConfigParser.ConfigParser()
-        self.config.read(path)
+        """Open the config file or use environment variables"""
+        self.config = configparser.ConfigParser()
+        self.use_env = False
+        
+        # Try to read config file
+        if path and os.path.exists(path):
+            self.config.read(path)
+        else:
+            # Config file doesn't exist, use environment variables
+            self.use_env = True
+            self._load_from_env()
+
+    def _load_from_env(self):
+        """Load configuration from environment variables"""
+        self.config.add_section('login')
+        
+        # Map environment variables to config keys
+        for key, default in DEFAULTS.items():
+            env_var = f'SOPHOS_SIEM_{key.upper()}'
+            value = os.environ.get(env_var, default)
+            self.config.set('login', key, value)
 
     def __getattr__(self, name):
-        return self.config.get("login", name)
+        try:
+            return self.config.get("login", name)
+        except (configparser.NoOptionError, configparser.NoSectionError):
+            # Return default value if available
+            return DEFAULTS.get(name, '')
 
 
 class Token:

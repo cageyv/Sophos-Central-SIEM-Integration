@@ -8,9 +8,11 @@ services:
     restart: unless-stopped
     
     volumes:
+      # Option 1: Mount config file (traditional method)
       # Mount config file (create config.ini from config.ini.sample first)
-      - ./config.ini:/app/config.ini:ro
+      # - ./config.ini:/app/config.ini:ro
       
+    
       # Persistent state and logs
       - ./state:/app/state
       - ./log:/app/log
@@ -22,6 +24,14 @@ services:
       - SOPHOS_SIEM_HOME=/app
       - PYTHONUNBUFFERED=1
       - SIEM_INTERVAL=60  # Execution interval in seconds (default: 600 = 10 minutes)
+      # Option 2: Use environment variables (new method)
+      - SOPHOS_SIEM_CLIENT_ID=${SOPHOS_SIEM_CLIENT_ID}
+      - SOPHOS_SIEM_CLIENT_SECRET=${SOPHOS_SIEM_CLIENT_SECRET}
+      - SOPHOS_SIEM_TENANT_ID=${SOPHOS_SIEM_TENANT_ID}
+      - SOPHOS_SIEM_FORMAT=json
+      - SOPHOS_SIEM_FILENAME=stdout
+      - SOPHOS_SIEM_ENDPOINT=event
+      - SOPHOS_SIEM_LOGGING_LEVEL=INFO
     
     # Logging configuration
     logging:

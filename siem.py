@@ -411,8 +411,13 @@ def main():
     logging.Formatter.formatTime = (lambda self, record, datefmt=None: datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat(sep="T",timespec="milliseconds"))
   
 
+    # If config file is not provided, use environment variables
+    if options.config is None:
+        config_data = config.Config(None)
+    else:
+        config_data = load_config(options.config)
 
-    config_data = load_config(options.config)
+
     logging.info("Logging Level is set as: "+config_data.logging_level)
     logger = logging.getLogger()
     logger.setLevel(config_data.logging_level)
