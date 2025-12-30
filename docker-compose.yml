@@ -1,0 +1,42 @@
+services:
+  sophos-siem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image: ghcr.io/cageyv/sophos-central-siem:latest
+    container_name: sophos-siem
+    restart: unless-stopped
+    
+    volumes:
+      # Mount config file (create config.ini from config.ini.sample first)
+      - ./config.ini:/app/config.ini:ro
+      
+      # Persistent state and logs
+      - ./state:/app/state
+      - ./log:/app/log
+      
+      # Optional: custom mapping file
+      # - ./siem_cef_mapping.txt:/app/siem_cef_mapping.txt:ro
+    
+    environment:
+      - SOPHOS_SIEM_HOME=/app
+      - PYTHONUNBUFFERED=1
+      - SIEM_INTERVAL=60  # Execution interval in seconds (default: 600 = 10 minutes)
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Resource limits (optional)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.5'
+    #       memory: 256M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 128M
+
