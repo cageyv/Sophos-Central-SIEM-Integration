@@ -29,9 +29,14 @@ services:
       - SOPHOS_SIEM_CLIENT_SECRET=${SOPHOS_SIEM_CLIENT_SECRET}
       - SOPHOS_SIEM_TENANT_ID=${SOPHOS_SIEM_TENANT_ID}
       - SOPHOS_SIEM_FORMAT=json
-      - SOPHOS_SIEM_FILENAME=stdout
+      - SOPHOS_SIEM_FILENAME=syslog
       - SOPHOS_SIEM_ENDPOINT=event
       - SOPHOS_SIEM_LOGGING_LEVEL=INFO
+      - SOPHOS_SIEM_APPEND_NEWLINE=true
+      - SOPHOS_SIEM_ADDRESS=host.docker.internal:1514
+      - SOPHOS_SIEM_FACILITY=syslog
+      - SOPHOS_SIEM_SOCKTYPE=tcp
+      - SOPHOS_SIEM_APPEND_NUL=false
     
     # Logging configuration
     logging:
@@ -49,4 +54,6 @@ services:
     #     reservations:
     #       cpus: '0.25'
     #       memory: 128M
+
+
 
