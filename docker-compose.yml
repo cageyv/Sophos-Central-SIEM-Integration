@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # image: ghcr.io/cageyv/sophos-central-siem:latest
     container_name: sophos-siem
     restart: unless-stopped
     
@@ -12,13 +11,9 @@ services:
       # Mount config file (create config.ini from config.ini.sample first)
       # - ./config.ini:/app/config.ini:ro
       
-    
       # Persistent state and logs
       - ./state:/app/state
       - ./log:/app/log
-      
-      # Optional: custom mapping file
-      # - ./siem_cef_mapping.txt:/app/siem_cef_mapping.txt:ro
     
     environment:
       - SOPHOS_SIEM_HOME=/app
