@@ -33,6 +33,7 @@ DEFAULTS = {
     'alerts_from_date_offset_minutes': '0',
     'convert_dhost_field_to_valid_fqdn': 'true',
     'logging_level': 'INFO',
+    'syslog_max_retries': '20',
     'token_info': '',
     'client_id': '',
     'client_secret': '',

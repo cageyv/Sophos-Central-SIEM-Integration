@@ -145,13 +145,28 @@ class ApiClient:
             socktype = SYSLOG_SOCKTYPE[self.config.socktype]
             
             if socktype == socket.SOCK_STREAM : 
-                #Check whether host is available within 3s for TCP!
+                #Check whether host is available with exponential backoff retry for TCP
                 timeout_seconds = 3
-                try:
-                    sock = socket.create_connection(address, timeout=timeout_seconds)
-                except :
-                    logging.critical(f"Could not connect to {self.config.address} via TCP after {timeout_seconds} seconds")
-                    raise SystemExit()
+                max_retries = int(self.config.syslog_max_retries)
+                base_delay = 1
+                max_delay = 32
+                
+                for attempt in range(max_retries):
+                    try:
+                        sock = socket.create_connection(address, timeout=timeout_seconds)
+                        sock.close()
+                        if attempt > 0:
+                            logging.info(f"Successfully connected to {self.config.address} after {attempt + 1} attempts")
+                        break
+                    except Exception:
+                        if attempt < max_retries - 1:
+                            # Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s (capped)
+                            retry_delay = min(base_delay * (2 ** attempt), max_delay)
+                            logging.warning(f"Attempt {attempt + 1}/{max_retries}: Could not connect to {self.config.address}, retrying in {retry_delay}s...")
+                            time.sleep(retry_delay)
+                        else:
+                            logging.critical(f"Could not connect to {self.config.address} via TCP after {max_retries} attempts")
+                            raise SystemExit()
             else: #UDP
                 logging.warning(f"Using UDP to connect to {self.config.address} - If target is not found, logs will be lost!")
 
